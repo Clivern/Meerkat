@@ -148,6 +148,13 @@ defmodule Scuti.Module.UserModule do
   end
 
   @doc """
+  Validate User UUID
+  """
+  def validate_user_uuid(user_uuid) do
+    UserContext.validate_user_uuid(user_uuid)
+  end
+
+  @doc """
   Count Team Users
   """
   def count_team_users(team_id) do
@@ -158,12 +165,6 @@ defmodule Scuti.Module.UserModule do
   Verify if email is used
   """
   def is_email_used(email) do
-    case UserContext.get_user_by_email(email) do
-      nil ->
-        false
-
-      _ ->
-        true
-    end
+    !!UserContext.get_user_by_email(email)
   end
 end
