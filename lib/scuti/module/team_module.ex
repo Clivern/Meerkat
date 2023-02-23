@@ -141,9 +141,9 @@ defmodule Scuti.Module.TeamModule do
   end
 
   @doc """
-  Count Teams
+  Count User Teams
   """
-  def count_teams(user_id) do
+  def count_user_teams(user_id) do
     length(get_user_teams(user_id))
   end
 
@@ -164,7 +164,7 @@ defmodule Scuti.Module.TeamModule do
   @doc """
   Get teams
   """
-  def get_teams(user_id, offset, limit) do
+  def get_user_teams(user_id, offset, limit) do
     user_teams = get_user_teams(user_id)
 
     teams_ids = []
