@@ -186,6 +186,19 @@ defmodule Scuti.Context.DeploymentContext do
   end
 
   @doc """
+  Get deployment by UUID with locking
+  """
+  def get_deployment_by_uuid_with_locking(uuid) do
+    from(
+      d in Deployment,
+      where: d.uuid == ^uuid
+    )
+    |> lock("FOR UPDATE")
+    |> limit(1)
+    |> Repo.one()
+  end
+
+  @doc """
   Retrieve a paginated list of deployments with an offset and limit.
   """
   def get_deployments(offset, limit) do

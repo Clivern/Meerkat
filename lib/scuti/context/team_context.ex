@@ -123,9 +123,6 @@ defmodule Scuti.Context.TeamContext do
 
   @doc """
   Retrieves teams with pagination.
-
-  - `offset`: Number of records to skip.
-  - `limit`: Max number of records to fetch.
   """
   def get_teams(offset, limit) do
     from(t in Team,
