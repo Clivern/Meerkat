@@ -13,7 +13,6 @@ defmodule Scuti.Model.Lock do
   schema "locks" do
     field :uuid, Ecto.UUID
     field :key, :string
-    field :version, :string
     field :status, :string
 
     timestamps()
@@ -24,15 +23,13 @@ defmodule Scuti.Model.Lock do
     config
     |> cast(attrs, [
       :uuid,
-      :name,
-      :value
+      :key,
+      :status
     ])
     |> validate_required([
       :uuid,
-      :name,
-      :value
+      :key,
+      :status
     ])
-    |> validate_length(:name, min: 3, max: 200)
-    |> validate_length(:value, min: 3, max: 2000)
   end
 end

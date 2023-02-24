@@ -9,7 +9,6 @@ defmodule Scuti.Repo.Migrations.CreateLocks do
     create table(:locks) do
       add :uuid, :uuid
       add :key, :string, unique: true
-      add :version, :string
       add :status, :string
 
       timestamps()

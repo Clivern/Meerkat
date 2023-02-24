@@ -19,7 +19,6 @@ defmodule Scuti.Context.LockContext do
     %{
       uuid: Map.get(attrs, :uuid, Ecto.UUID.generate()),
       key: attrs.key,
-      version: attrs.version,
       status: attrs.status
     }
   end
