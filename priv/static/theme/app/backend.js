@@ -97,8 +97,6 @@ scuti_app.login_screen = (Vue, axios, $) => {
                     .then((response) => {
                         if (response.status >= 200) {
                             show_notification(response.data.successMessage);
-                            Cookies.set('_token', response.data.token);
-                            Cookies.set('_uid', response.data.user);
                             location.reload();
                         }
                     })

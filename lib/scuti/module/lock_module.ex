@@ -9,7 +9,7 @@ defmodule Scuti.Module.LockModule do
   alias Scuti.Context.LockContext
 
   @doc """
-  Lock an Entity
+  Lock an entity
   """
   def lock_entity(entity, id \\ 0) do
     lock =
@@ -32,7 +32,7 @@ defmodule Scuti.Module.LockModule do
   end
 
   @doc """
-  Unlock an Entity
+  Unlock an entity
   """
   def unlock_entity(entity, id \\ 0) do
     case LockContext.get_lock_by_key("#{entity}_#{id}") do
@@ -45,7 +45,7 @@ defmodule Scuti.Module.LockModule do
   end
 
   @doc """
-  Check if an Entity is Locked
+  Check if an entity is locked
   """
   def is_locked(entity, id \\ 0) do
     case LockContext.get_lock_by_key("#{entity}_#{id}") do
@@ -57,14 +57,14 @@ defmodule Scuti.Module.LockModule do
   @doc """
   Release old locks
   """
-  def release_old_locks(seconds_ago \\ -3600) do
-    LockContext.release_old_locks(seconds_ago)
+  def release_locks(seconds_ago \\ -3600) do
+    LockContext.release_locks(seconds_ago)
   end
 
   @doc """
   Delete old locks
   """
-  def delete_old_locks(months_ago \\ -3) do
-    LockContext.delete_old_locks(months_ago)
+  def delete_locks(months_ago \\ -3) do
+    LockContext.delete_locks(months_ago)
   end
 end

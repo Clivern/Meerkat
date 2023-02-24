@@ -82,7 +82,7 @@ defmodule Scuti.Context.LockContext do
   @doc """
   Release old locks
   """
-  def release_old_locks(seconds_ago \\ -3600) do
+  def release_locks(seconds_ago \\ -3600) do
     one_hour_ago = DateTime.utc_now() |> DateTime.add(seconds_ago)
 
     from(l in Lock,
@@ -95,7 +95,7 @@ defmodule Scuti.Context.LockContext do
   @doc """
   Delete old locks
   """
-  def delete_old_locks(months_ago \\ -3) do
+  def delete_locks(months_ago \\ -3) do
     three_months_ago = DateTime.utc_now() |> DateTime.add(months_ago * 30 * 24 * 60 * 60)
 
     from(l in Lock,
