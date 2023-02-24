@@ -13,7 +13,7 @@ defmodule Scuti.Context.LockContext do
   alias Scuti.Model.Lock
 
   @doc """
-  Initializes a new lock with given attributes. Generates a UUID if not provided.
+  Initializes a new lock with given attributes.
   """
   def new_lock(attrs \\ %{}) do
     %{
