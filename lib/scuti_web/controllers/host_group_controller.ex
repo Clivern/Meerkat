@@ -78,8 +78,8 @@ defmodule ScutiWeb.HostGroupController do
       if conn.assigns[:is_super] do
         {HostGroupModule.get_groups(offset, limit), HostGroupModule.count_groups()}
       else
-        {HostGroupModule.get_groups(conn.assigns[:user_id], offset, limit),
-         HostGroupModule.count_groups(conn.assigns[:user_id])}
+        {HostGroupModule.get_user_groups(conn.assigns[:user_id], offset, limit),
+         HostGroupModule.count_user_groups(conn.assigns[:user_id])}
       end
 
     render(conn, "list.json", %{
