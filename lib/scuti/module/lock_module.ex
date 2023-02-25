@@ -12,22 +12,31 @@ defmodule Scuti.Module.LockModule do
   Lock an entity
   """
   def lock_entity(entity, id \\ 0) do
-    lock =
-      LockContext.new_lock(%{
-        key: "#{entity}_#{id}",
-        status: "locked"
-      })
+    :sleeplocks.new(1, name: :scuti_lock)
 
-    case LockContext.create_lock(lock) do
-      {:ok, lock} ->
-        {:ok, lock}
+    case :sleeplocks.attempt(:scuti_lock) do
+      :ok ->
+        lock =
+          LockContext.new_lock(%{
+            key: "#{entity}_#{id}",
+            status: "locked"
+          })
 
-      {:error, changeset} ->
-        messages =
-          changeset.errors()
-          |> Enum.map(fn {field, {message, _options}} -> "#{field}: #{message}" end)
+        case LockContext.create_lock(lock) do
+          {:ok, lock} ->
+            :sleeplocks.release(:scuti_lock)
+            {:ok, lock}
 
-        {:error, Enum.at(messages, 0)}
+          {:error, changeset} ->
+            messages =
+              changeset.errors()
+              |> Enum.map(fn {field, {message, _options}} -> "#{field}: #{message}" end)
+
+            {:error, Enum.at(messages, 0)}
+        end
+
+      {:error, :unavailable} ->
+        {:error, "Unable to lock the entity"}
     end
   end
 
