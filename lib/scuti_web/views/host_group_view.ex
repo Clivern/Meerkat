@@ -35,7 +35,6 @@ defmodule ScutiWeb.HostGroupView do
       id: group.uuid,
       teamId: TeamModule.get_team_uuid_with_id(group.team_id),
       name: group.name,
-      apiKey: group.secret_key,
       labels: group.labels,
       remoteJoin: group.remote_join,
       createdAt: group.inserted_at,

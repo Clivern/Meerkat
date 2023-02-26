@@ -19,13 +19,7 @@ defmodule Scuti.Module.PermissionModule do
   end
 
   def can_access_group_id(:group, :regular, id, user_id) do
-    case HostGroupContext.get_group_by_id_teams(id, get_user_teams_ids(user_id)) do
-      nil ->
-        false
-
-      _ ->
-        true
-    end
+    !!HostGroupContext.get_group_by_id_teams(id, get_user_teams_ids(user_id))
   end
 
   def can_access_group_uuid(:group, :anonymous, _uuid, _user_id) do
@@ -37,13 +31,7 @@ defmodule Scuti.Module.PermissionModule do
   end
 
   def can_access_group_uuid(:group, :regular, uuid, user_id) do
-    case HostGroupContext.get_group_by_uuid_teams(uuid, get_user_teams_ids(user_id)) do
-      nil ->
-        false
-
-      _ ->
-        true
-    end
+    !!HostGroupContext.get_group_by_uuid_teams(uuid, get_user_teams_ids(user_id))
   end
 
   defp get_user_teams_ids(user_id) do

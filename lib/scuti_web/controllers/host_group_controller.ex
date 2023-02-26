@@ -19,10 +19,8 @@ defmodule ScutiWeb.HostGroupController do
 
   @default_list_limit 10
   @default_list_offset 0
-
   @name_min_length 2
   @name_max_length 60
-
   @description_min_length 2
   @description_max_length 250
 
