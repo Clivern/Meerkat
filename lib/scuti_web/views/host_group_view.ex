@@ -6,6 +6,7 @@ defmodule ScutiWeb.HostGroupView do
   use ScutiWeb, :view
 
   alias Scuti.Module.TeamModule
+  alias Scuti.Context.HostContext
 
   # Render groups list
   def render("list.json", %{groups: groups, metadata: metadata}) do
@@ -37,6 +38,7 @@ defmodule ScutiWeb.HostGroupView do
       name: group.name,
       labels: group.labels,
       remoteJoin: group.remote_join,
+      hostsCount: HostContext.count_hosts_by_host_group(group.id),
       createdAt: group.inserted_at,
       updatedAt: group.updated_at
     }

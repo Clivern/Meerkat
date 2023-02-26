@@ -1,9 +1,3 @@
-<script type="text/javascript">
-  var i18n_globals = {
-    new_group: '<%= gettext "Host group created successfully!" %>'
-  }
-</script>
-
 <main class="hp-bg-color-dark-90 d-flex min-vh-100">
     <div class="hp-main-layout hp-main-layout-horizontal">
         <header>
@@ -18,7 +12,7 @@
 
                         <div class="col hp-flex-none w-auto hp-horizontal-block">
                             <div class="hp-header-logo d-flex align-items-end">
-                                <a href={Routes.page_path(@conn, :dashboard)}>
+                                <a href={Routes.page_path(@conn, :groups)}>
                                     <img class="hp-logo hp-sidebar-visible" src={Routes.static_path(@conn, "/images/ico.png")} alt="logo">
                                     <img class="hp-logo hp-sidebar-hidden hp-dir-none hp-dark-none" src={Routes.static_path(@conn, "/images/ico.png")} alt="logo">
                                     <img class="hp-logo hp-sidebar-hidden hp-dir-none hp-dark-block" src={Routes.static_path(@conn, "/images/ico.png")} alt="logo">
@@ -37,25 +31,25 @@
                                 </li>
 
                                 <li class="px-6">
-                                    <a href={Routes.page_path(@conn, :list_groups)} class="px-12 py-4">
+                                    <a href={Routes.page_path(@conn, :groups)} class="px-12 py-4">
                                         <span><%= gettext "Host Groups" %></span>
                                     </a>
                                 </li>
 
                                 <li class="px-6">
-                                    <a href={Routes.page_path(@conn, :list_deployments)} class="px-12 py-4">
+                                    <a href={Routes.page_path(@conn, :deployments)} class="px-12 py-4">
                                         <span><%= gettext "Deployments" %></span>
                                     </a>
                                 </li>
                                 <%= if @data.is_super do %>
                                     <li class="px-6">
-                                        <a href={Routes.page_path(@conn, :list_teams)} class="px-12 py-4">
+                                        <a href={Routes.page_path(@conn, :teams)} class="px-12 py-4">
                                             <span><%= gettext "Teams" %></span>
                                         </a>
                                     </li>
 
                                     <li class="px-6">
-                                        <a href={Routes.page_path(@conn, :list_users)} class="px-12 py-4">
+                                        <a href={Routes.page_path(@conn, :users)} class="px-12 py-4">
                                             <span><%= gettext "Users" %></span>
                                         </a>
                                     </li>
@@ -109,7 +103,7 @@
             <div class="offcanvas-header justify-content-between align-items-end me-16 ms-24 mt-16 p-0">
                 <div class="w-auto px-0">
                     <div class="hp-header-logo d-flex align-items-end">
-                        <a href={Routes.page_path(@conn, :dashboard)}>
+                        <a href={Routes.page_path(@conn, :groups)}>
                             <img class="hp-logo hp-sidebar-visible" src={Routes.static_path(@conn, "/images/ico.png")} alt="logo">
                             <img class="hp-logo hp-sidebar-hidden hp-dir-none hp-dark-none" src={Routes.static_path(@conn, "/images/ico.png")} alt="logo">
                             <img class="hp-logo hp-sidebar-hidden hp-dir-none hp-dark-block" src={Routes.static_path(@conn, "/images/ico.png")} alt="logo">
@@ -138,7 +132,7 @@
 
                             <div class="w-auto px-0">
                                 <div class="hp-header-logo d-flex align-items-end">
-                                    <a href={Routes.page_path(@conn, :dashboard)}>
+                                    <a href={Routes.page_path(@conn, :groups)}>
                                         <img class="hp-logo hp-sidebar-visible" src={Routes.static_path(@conn, "/images/ico.png")} alt="logo">
                                         <img class="hp-logo hp-sidebar-hidden hp-dir-none hp-dark-none" src={Routes.static_path(@conn, "/images/ico.png")} alt="logo">
                                         <img class="hp-logo hp-sidebar-hidden hp-dir-none hp-dark-block" src={Routes.static_path(@conn, "/images/ico.png")} alt="logo">
@@ -169,7 +163,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href={Routes.page_path(@conn, :list_groups)}>
+                                        <a href={Routes.page_path(@conn, :groups)}>
                                             <div class="tooltip-item in-active" data-bs-toggle="tooltip" data-bs-placement="right" title="Blank Page" data-bs-original-title="Blank Page" aria-label="Blank Page"></div>
                                             <span>
                                                 <i class="iconly-Curved-PaperPlus"></i>
@@ -178,7 +172,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href={Routes.page_path(@conn, :list_deployments)}>
+                                        <a href={Routes.page_path(@conn, :deployments)}>
                                             <div class="tooltip-item in-active" data-bs-toggle="tooltip" data-bs-placement="right" title="Blank Page" data-bs-original-title="Blank Page" aria-label="Blank Page"></div>
                                             <span>
                                                 <i class="iconly-Curved-PaperPlus"></i>
@@ -188,7 +182,7 @@
                                     </li>
                                     <%= if @data.is_super do %>
                                         <li>
-                                            <a href={Routes.page_path(@conn, :list_teams)}>
+                                            <a href={Routes.page_path(@conn, :teams)}>
                                                 <div class="tooltip-item in-active" data-bs-toggle="tooltip" data-bs-placement="right" title="Blank Page" data-bs-original-title="Blank Page" aria-label="Blank Page"></div>
                                                 <span>
                                                     <i class="iconly-Curved-PaperPlus"></i>
@@ -197,7 +191,7 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a href={Routes.page_path(@conn, :list_users)}>
+                                            <a href={Routes.page_path(@conn, :users)}>
                                                 <div class="tooltip-item in-active" data-bs-toggle="tooltip" data-bs-placement="right" title="Blank Page" data-bs-original-title="Blank Page" aria-label="Blank Page"></div>
                                                 <span>
                                                     <i class="iconly-Curved-PaperPlus"></i>
@@ -244,165 +238,88 @@
 
         <div class="hp-main-layout-content">
 
-            <div class="row mb-32 gy-32">
+            <div class="row g-32">
                 <div class="col-12">
-                    <div class="row justify-content-between gy-32">
-                        <div class="col hp-flex-none w-auto">
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item">
-                                        <a href={Routes.page_path(@conn, :dashboard)}><%= gettext "Dashboard" %></a>
-                                    </li>
-                                    <li class="breadcrumb-item active">
-                                        <%= gettext "Host Groups" %>
-                                    </li>
-                                </ol>
-                            </nav>
-                        </div>
+                    <h1 class="mb-8"><%= gettext "Host Group" %></h1>
+                </div>
 
-                        <div class="col-12 col-md-7">
-                            <div class="row g-16 align-items-center justify-content-end">
-                                <div class="col hp-flex-none w-auto">
-                                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#add_group_modal">
-                                        <i class="ri-user-add-line remix-icon"></i>
-                                        <span><%= gettext "Add New Host Group" %></span>
-                                    </button>
-                                </div>
-                            </div>
+                <div class="col-12">
+                    <div class="card hp-card-2">
+                        <div class="card-body">
+                            <h5 class="mb-4">Group Name</h5>
+                            <p class="hp-p1-body mb-16"><%= @data.group.name %></p>
+
+                            <h5 class="mb-4">Group UUID</h5>
+                            <p class="hp-p1-body mb-16"><%= @data.group.uuid %></p>
+
+                            <h5 class="mb-4">Group Secret</h5>
+                            <p class="hp-p1-body mb-16"><%= @data.group.secret_key %></p>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-12">
-                    <div class="card hp-contact-card mb-32">
-                        <div class="card-body px-0">
+                    <div class="card hp-card-6 hp-order-table-card">
+                        <div class="card-body">
+                            <h5 class="mb-8"><%= gettext "Hosts" %></h5>
+
                             <div class="table-responsive">
-                                <table class="table align-middle table-hover table-borderless">
+                                <table class="table align-middle">
                                     <thead>
                                         <tr>
-                                            <th></th>
-                                            <th><%= gettext "Name" %></th>
-                                            <th><%= gettext "Hosts" %></th>
-                                            <th><%= gettext "Labels" %></th>
-                                            <th><%= gettext "Created at" %></th>
-                                            <th></th>
+                                            <th>
+                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Name" %></span>
+                                            </th>
+                                            <th>
+                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Hostname" %></span>
+                                            </th>
+                                            <th>
+                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Status" %></span>
+                                            </th>
+                                            <th>
+                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Labels" %></span>
+                                            </th>
+                                            <th>
+                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Created at" %></span>
+                                            </th>
+                                            <th>
+                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Actions" %></span>
+                                            </th>
                                         </tr>
                                     </thead>
-
                                     <tbody>
-                                      <%= for group <- @data.groups do %>
+                                      <%= for host <- @data.hosts do %>
                                         <tr>
-                                            <td>
-                                                <a href="#">
-                                                    <div class="avatar-item avatar-lg d-flex align-items-center justify-content-center bg-primary-4 hp-bg-dark-primary text-primary hp-text-color-dark-0 rounded-circle">
-                                                        <i class="iconly-Curved-Category"></i>
-                                                    </div>
-                                                </a>
-                                            </td>
-                                            <td><%= group.name %></td>
-                                            <td><%= group.host_count %></td>
-                                            <td><%= group.labels %></td>
-                                            <td><%= group.inserted_at %></td>
-                                            <td>
-                                                <a href={Routes.page_path(@conn, :view_group, group.uuid)} class="btn btn-dashed btn-sm text-black-100 border-black-100 hp-hover-text-color-black-80 hp-hover-border-color-black-80" data-id={group.id} data-uuid={group.uuid}><%= gettext "View" %></a>
-                                                <button class="btn btn-dashed btn-sm text-danger border-danger hp-hover-text-color-danger-2 hp-hover-border-color-danger-2" data-id={group.id} data-uuid={group.uuid}><%= gettext "Delete" %></button>
-                                            </td>
+                                          <td><span class="text-color-dark-0"><%= host.name %></span></td>
+                                          <td><span class="text-color-dark-0"><%= host.hostname %></span></td>
+                                          <td>
+                                            <%= if host.status == "up" do %>
+                                              <div class="badge bg-success-4 hp-bg-dark-success text-success border-success"><%= gettext "UP" %></div>
+                                            <% end %>
+                                            <%= if host.status == "down" do %>
+                                              <div class="badge bg-danger-4 hp-bg-dark-danger text-danger border-danger"><%= gettext "DOWN" %></div>
+                                            <% end %>
+                                            <%= if host.status == "unknown" do %>
+                                            <div class="badge bg-warning-4 hp-bg-dark-warning text-warning border-warning"><%= gettext "UNKNOWN" %></div>
+                                            <% end %>
+                                          </td>
+                                          <td><span class="text-color-dark-0"><%= host.labels %></span></td>
+                                          <td><span class="text-color-dark-0"><%= host.inserted_at %></span></td>
+                                          <td>
+                                                <button class="btn btn-dashed btn-sm text-black-100 border-black-100 hp-hover-text-color-black-80 hp-hover-border-color-black-80" data-id={host.id} data-uuid={host.uuid}><%= gettext "Edit" %></button>
+                                                <button class="btn btn-dashed btn-sm text-danger border-danger hp-hover-text-color-danger-2 hp-hover-border-color-danger-2" data-id={host.id} data-uuid={host.uuid}><%= gettext "Delete" %></button>
+                                          </td>
                                         </tr>
                                       <% end %>
                                     </tbody>
                                 </table>
                             </div>
-
-                            <!--
-                            TODO
-                            <nav>
-                                <ul class="pagination justify-content-end px-32">
-                                    <li class="page-item">
-                                        <a class="page-link" href="javascript:;">
-                                            <svg viewBox="64 64 896 896" focusable="false" data-icon="left" width="12px" height="12px" fill="currentColor" aria-hidden="true">
-                                                <path d="M724 218.3V141c0-6.7-7.7-10.4-12.9-6.3L260.3 486.8a31.86 31.86 0 000 50.3l450.8 352.1c5.3 4.1 12.9.4 12.9-6.3v-77.3c0-4.9-2.3-9.6-6.1-12.6l-360-281 360-281.1c3.8-3 6.1-7.7 6.1-12.6z"></path>
-                                            </svg>
-                                        </a>
-                                    </li>
-
-                                    <li class="page-item">
-                                        <a class="page-link" href="javascript:;">1</a>
-                                    </li>
-
-                                    <li class="page-item">
-                                        <a class="page-link" href="javascript:;">
-                                            <svg viewBox="64 64 896 896" focusable="false" data-icon="right" width="12px" height="12px" fill="currentColor" aria-hidden="true">
-                                                <path d="M765.7 486.8L314.9 134.7A7.97 7.97 0 00302 141v77.3c0 4.9 2.3 9.6 6.1 12.6l360 281.1-360 281.1c-3.9 3-6.1 7.7-6.1 12.6V883c0 6.7 7.7 10.4 12.9 6.3l450.8-352.1a31.96 31.96 0 000-50.4z"></path>
-                                            </svg>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                            --->
                         </div>
                     </div>
                 </div>
+
             </div>
 
-            <div class="modal fade" id="add_group_modal" tabindex="-1" aria-labelledby="addNewGroupLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header py-16 px-24">
-                            <h5 class="modal-title" id="addNewGroupLabel"><%= gettext "Add New Host Group" %></h5>
-                            <button type="button" class="btn-close hp-bg-none d-flex align-items-center justify-content-center" data-bs-dismiss="modal" aria-label="Close">
-                                <i class="ri-close-line hp-text-color-dark-0 lh-1" style="font-size: 24px;"></i>
-                            </button>
-                        </div>
-
-                        <div class="divider m-0"></div>
-
-                        <form action={Routes.host_group_path(@conn, :create)} method="post" v-on:submit.prevent="addGroupAction">
-                            <div class="modal-body">
-                                <div class="row gx-8">
-                                    <div class="col-12">
-                                        <div class="mb-24">
-                                            <label class="form-label"><%= gettext "Name" %></label>
-                                            <input type="text" class="form-control" name="name" required="required">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="mb-24">
-                                            <label class="form-label"><%= gettext "Labels" %></label>
-                                            <input type="text" class="form-control" name="labels" required="required">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="mb-24">
-                                            <label class="form-label"><%= gettext "Remote Join" %></label>
-                                            <select class="form-select" name="remoteJoin" required="required">
-                                                <option value="disabled" selected><%= gettext "Disabled" %></option>
-                                                <option value="enabled"><%= gettext "Enabled" %></option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="mb-24">
-                                            <label class="form-label"><%= gettext "Team" %></label>
-                                            <select class="form-select" name="teamId" required="required">
-                                                <%= for team <- @data.user_teams do %>
-                                                  <option value={team.id}><%= team.name %></option>
-                                                <% end %>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer pt-0 px-24 pb-24">
-                                <div class="divider"></div>
-                                <button type="submit" class="m-0 btn btn-primary w-100" :disabled="isInProgress"><%= gettext "Submit" %></button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <footer class="w-100 py-18 px-16 py-sm-24 px-sm-32 hp-bg-color-black-20 hp-bg-color-dark-90">
