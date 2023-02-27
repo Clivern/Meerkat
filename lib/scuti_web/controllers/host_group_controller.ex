@@ -150,6 +150,7 @@ defmodule ScutiWeb.HostGroupController do
       {:ok, _} ->
         result =
           HostGroupModule.update_group(%{
+            uuid: params["uuid"],
             name: params["name"],
             description: params["description"],
             team_id: TeamModule.get_team_id_with_uuid(params["team_id"]),
