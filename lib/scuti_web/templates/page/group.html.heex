@@ -80,7 +80,6 @@
                                                 <div class="col-12">
                                                     <a href="https://github.com/clivern/scuti/issues" class="d-flex align-items-center hp-p1-body py-4 px-10 hp-transition hp-hover-bg-primary-4 hp-hover-bg-dark-primary hp-hover-bg-dark-80 rounded" style="margin-left: -10px; margin-right: -10px;">
                                                         <i class="iconly-Curved-Game me-8" style="font-size: 16px;"></i>
-
                                                         <span class="hp-ml-8"><%= gettext "Support" %></span>
                                                     </a>
                                                 </div>
@@ -247,13 +246,13 @@
                     <div class="card hp-card-2">
                         <div class="card-body">
                             <h5 class="mb-4">Group Name</h5>
-                            <p class="hp-p1-body mb-16"><%= @data.group.name %></p>
+                            <p class="hp-p1-body mb-16"></p>
 
                             <h5 class="mb-4">Group UUID</h5>
-                            <p class="hp-p1-body mb-16"><%= @data.group.uuid %></p>
+                            <p class="hp-p1-body mb-16"></p>
 
                             <h5 class="mb-4">Group Secret</h5>
-                            <p class="hp-p1-body mb-16"><%= @data.group.secret_key %></p>
+                            <p class="hp-p1-body mb-16"></p>
                         </div>
                     </div>
                 </div>
@@ -288,29 +287,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                      <%= for host <- @data.hosts do %>
-                                        <tr>
-                                          <td><span class="text-color-dark-0"><%= host.name %></span></td>
-                                          <td><span class="text-color-dark-0"><%= host.hostname %></span></td>
-                                          <td>
-                                            <%= if host.status == "up" do %>
-                                              <div class="badge bg-success-4 hp-bg-dark-success text-success border-success"><%= gettext "UP" %></div>
-                                            <% end %>
-                                            <%= if host.status == "down" do %>
-                                              <div class="badge bg-danger-4 hp-bg-dark-danger text-danger border-danger"><%= gettext "DOWN" %></div>
-                                            <% end %>
-                                            <%= if host.status == "unknown" do %>
-                                            <div class="badge bg-warning-4 hp-bg-dark-warning text-warning border-warning"><%= gettext "UNKNOWN" %></div>
-                                            <% end %>
-                                          </td>
-                                          <td><span class="text-color-dark-0"><%= host.labels %></span></td>
-                                          <td><span class="text-color-dark-0"><%= host.inserted_at %></span></td>
-                                          <td>
-                                                <button class="btn btn-dashed btn-sm text-black-100 border-black-100 hp-hover-text-color-black-80 hp-hover-border-color-black-80" data-id={host.id} data-uuid={host.uuid}><%= gettext "Edit" %></button>
-                                                <button class="btn btn-dashed btn-sm text-danger border-danger hp-hover-text-color-danger-2 hp-hover-border-color-danger-2" data-id={host.id} data-uuid={host.uuid}><%= gettext "Delete" %></button>
-                                          </td>
-                                        </tr>
-                                      <% end %>
+
                                     </tbody>
                                 </table>
                             </div>
