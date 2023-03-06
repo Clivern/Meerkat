@@ -697,6 +697,258 @@ scuti_app.edit_user_modal = (Vue, axios, $) => {
     });
 }
 
+// Groups list
+scuti_app.groups_list = (Vue, axios, $) => {
+
+    return new Vue({
+        delimiters: ['${', '}'],
+        el: '#groups_list',
+        data() {
+            return {
+                currentPage: 1,
+                limit: 10,
+                totalCount: 5,
+                groups: []
+            }
+        },
+        mounted() {
+            this.loadDataAction();
+        },
+        computed: {
+            totalPages() {
+                return Math.ceil(this.totalCount / this.limit);
+            }
+        },
+        methods: {
+            showGroupInfoAction(description) {
+                $("div#group_info_modal_content").text(description);
+            },
+
+            editGroupAction(id) {
+                let current = $('form#update_group_form input[name="uuid"]').val()
+                if (current != "") {
+                    $('form#update_group_form').attr('action', function(i, val) {
+                        return val.replace(current, "UUID");
+                    });
+                }
+
+                $('form#update_group_form input[name="uuid"]').val(id);
+                $('form#update_group_form').attr('action', function(i, val) {
+                    return val.replace('UUID', id);
+                });
+
+                axios.get($("#update_group_form").attr("action"))
+                    .then((response) => {
+                        if (response.status >= 200) {
+                            $('form#update_group_form input[name="name"]').val(response.data.name);
+                            $('form#update_group_form textarea[name="description"]').val(response.data.description);
+                            $('form#update_group_form textarea[name="labels"]').val(response.data.labels);
+                            if (response.data.remoteJoin) {
+                                $('form#update_group_form select[name="remote_join"]').val("enabled");
+                            } else {
+                                $('form#update_group_form select[name="remote_join"]').val("disabled");
+                            }
+                            $('form#update_group_form select[name="team_id"]').val(response.data.team.id);
+                        }
+                    })
+                    .catch((error) => {
+                        show_notification(error.response.data.errorMessage);
+                    });
+            },
+
+            formatDatetime(datatime) {
+                return format_datetime(datatime);
+            },
+
+            viewGroupAction(id) {
+                window.location.href = _globals.group_view_page.replace("UUID", id);
+            },
+
+            deleteGroupAction(id) {
+                if (confirm(_globals.delete_group_alert) != true) {
+                    return;
+                }
+
+                axios.delete(_globals.delete_group_endpoint.replace("UUID", id), {})
+                    .then((response) => {
+                        if (response.status >= 200) {
+                            show_notification(_globals.delete_group_message);
+                            setTimeout(() => { location.reload(); }, 2000);
+                        }
+                    })
+                    .catch((error) => {
+                        show_notification(error.response.data.errorMessage);
+                    });
+            },
+
+            loadDataAction() {
+                var offset = (this.currentPage - 1) * this.limit;
+
+                axios.get($("#groups_list").attr("data-action"), {
+                        params: {
+                            offset: offset,
+                            limit: this.limit
+                        }
+                    })
+                    .then((response) => {
+                        if (response.status >= 200) {
+                            this.groups = response.data.groups;
+                            this.limit = response.data._metadata.limit;
+                            this.offset = response.data._metadata.offset;
+                            this.totalCount = response.data._metadata.totalCount;
+                        }
+                    })
+                    .catch((error) => {
+                        show_notification(error.response.data.errorMessage);
+                    });
+            },
+            loadPreviousPageAction(event) {
+                event.preventDefault();
+
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.loadDataAction();
+                }
+            },
+            loadNextPageAction(event) {
+                event.preventDefault();
+
+                if (this.currentPage < this.totalPages) {
+                    this.currentPage++;
+                    this.loadDataAction();
+                }
+            }
+        }
+    });
+}
+
+scuti_app.edit_group_modal = (Vue, axios, $) => {
+
+    return new Vue({
+        delimiters: ['${', '}'],
+        el: '#edit_group_modal',
+        data() {
+            return {
+                isInProgress: false,
+                teams: []
+            }
+        },
+        mounted() {
+            this.loadDataAction();
+        },
+        methods: {
+            loadDataAction() {
+                axios.get($("#edit_group_modal").attr("data-action"), {
+                        params: {
+                            offset: 0,
+                            limit: 10000
+                        }
+                    })
+                    .then((response) => {
+                        if (response.status >= 200) {
+                            this.teams = response.data.teams;
+                        }
+                    })
+                    .catch((error) => {
+                        show_notification(error.response.data.errorMessage);
+                    });
+            },
+            updateGroupAction(event) {
+                event.preventDefault();
+                this.isInProgress = true;
+
+                let inputs = {};
+                let _self = $(event.target);
+                let _form = _self.closest("form");
+
+                _form.serializeArray().map((item, index) => {
+                    inputs[item.name] = item.value;
+                });
+
+                axios.put(_form.attr('action'), inputs)
+                    .then((response) => {
+                        if (response.status >= 200) {
+                            show_notification(_globals.update_group_message);
+
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        }
+                    })
+                    .catch((error) => {
+                        this.isInProgress = false;
+                        // Show error
+                        show_notification(error.response.data.errorMessage);
+                    });
+            }
+        }
+    });
+}
+
+// Add Group Modal
+scuti_app.add_group_modal = (Vue, axios, $) => {
+
+    return new Vue({
+        delimiters: ['${', '}'],
+        el: '#add_group_modal',
+        data() {
+            return {
+                isInProgress: false,
+                teams: []
+            }
+        },
+        mounted() {
+            this.loadData();
+        },
+        methods: {
+            loadData() {
+                axios.get($("#add_group_modal").attr("data-action"), {
+                        params: {
+                            offset: 0,
+                            limit: 10000
+                        }
+                    })
+                    .then((response) => {
+                        if (response.status >= 200) {
+                            this.teams = response.data.teams;
+                        }
+                    })
+                    .catch((error) => {
+                        show_notification(error.response.data.errorMessage);
+                    });
+            },
+            addGroupAction(event) {
+                event.preventDefault();
+                this.isInProgress = true;
+
+                let inputs = {};
+                let _self = $(event.target);
+                let _form = _self.closest("form");
+
+                _form.serializeArray().map((item, index) => {
+                    inputs[item.name] = item.value;
+                });
+
+                axios.post(_form.attr('action'), inputs)
+                    .then((response) => {
+                        if (response.status >= 200) {
+                            show_notification(_globals.new_group);
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        }
+                    })
+                    .catch((error) => {
+                        this.isInProgress = false;
+                        // Show error
+                        show_notification(error.response.data.errorMessage);
+                    });
+            }
+        }
+    });
+
+}
+
 $(document).ready(() => {
     axios.defaults.headers.common = {
         'X-Requested-With': 'XMLHttpRequest',
@@ -785,6 +1037,30 @@ $(document).ready(() => {
 
     if (document.getElementById("users_list")) {
         scuti_app.users_list(
+            Vue,
+            axios,
+            $
+        );
+    }
+
+    if (document.getElementById("groups_list")) {
+        scuti_app.groups_list(
+            Vue,
+            axios,
+            $
+        );
+    }
+
+    if (document.getElementById("edit_group_modal")) {
+        scuti_app.edit_group_modal(
+            Vue,
+            axios,
+            $
+        );
+    }
+
+    if (document.getElementById("add_group_modal")) {
+        scuti_app.add_group_modal(
             Vue,
             axios,
             $

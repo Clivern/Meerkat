@@ -53,8 +53,10 @@ defmodule Scuti.Module.HostGroupModule do
           description: data[:description] || group.description,
           team_id: data[:team_id] || group.team_id,
           labels: data[:labels] || group.labels,
-          remote_join: data[:remote_join] || group.remote_join
+          remote_join: data[:remote_join] || false
         }
+
+        IO.inspect(new_group)
 
         case HostGroupContext.update_group(group, new_group) do
           {:ok, group} ->
@@ -111,7 +113,13 @@ defmodule Scuti.Module.HostGroupModule do
   Get Host Group by UUID
   """
   def get_group_by_uuid(uuid) do
-    HostGroupContext.get_group_by_uuid(uuid)
+    case HostGroupContext.get_group_by_uuid(uuid) do
+      nil ->
+        {:not_found, "Host group with ID #{uuid} not found"}
+
+      group ->
+        {:ok, group}
+    end
   end
 
   @doc """

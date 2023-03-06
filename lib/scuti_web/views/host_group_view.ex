@@ -32,10 +32,16 @@ defmodule ScutiWeb.HostGroupView do
 
   # Format group
   defp render_group(group) do
+    {_, team} = TeamModule.get_team_by_id(group.team_id)
+
     %{
       id: group.uuid,
-      teamId: TeamModule.get_team_uuid_with_id(group.team_id),
       name: group.name,
+      description: group.description,
+      team: %{
+        id: team.uuid,
+        name: team.name
+      },
       labels: group.labels,
       remoteJoin: group.remote_join,
       hostsCount: HostContext.count_hosts_by_host_group(group.id),
