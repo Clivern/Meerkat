@@ -56,8 +56,6 @@ defmodule Scuti.Module.HostGroupModule do
           remote_join: data[:remote_join] || false
         }
 
-        IO.inspect(new_group)
-
         case HostGroupContext.update_group(group, new_group) do
           {:ok, group} ->
             {:ok, group}
@@ -173,6 +171,13 @@ defmodule Scuti.Module.HostGroupModule do
   """
   def validate_team_uuid(uuid) do
     TeamContext.validate_team_uuid(uuid)
+  end
+
+  @doc """
+  Get group ID with UUID
+  """
+  def get_group_id_with_uuid(group_uuid) do
+    HostGroupContext.get_group_id_with_uuid(group_uuid)
   end
 
   @doc """

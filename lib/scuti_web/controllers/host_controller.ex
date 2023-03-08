@@ -14,7 +14,6 @@ defmodule ScutiWeb.HostController do
   alias Scuti.Module.HostGroupModule
   alias Scuti.Module.HostModule
   alias Scuti.Module.PermissionModule
-  alias Scuti.Module.TeamModule
   alias Scuti.Service.ValidatorService
   alias Scuti.Service.AuthService
 
@@ -22,8 +21,12 @@ defmodule ScutiWeb.HostController do
   @default_list_offset 0
   @name_min_length 2
   @name_max_length 60
-  @description_min_length 2
-  @description_max_length 250
+  @hostname_min_length 2
+  @hostname_max_length 250
+  @agent_address_min_length 2
+  @agent_address_max_length 250
+  @secret_key_min_length 2
+  @secret_key_max_length 250
 
   plug :regular_user when action in [:list, :index, :create, :update, :delete]
   plug :host_access_check when action in [:index, :update, :delete]
@@ -97,8 +100,8 @@ defmodule ScutiWeb.HostController do
     offset = params["offset"] || @default_list_offset
     group_uuid = params["group_uuid"] || ""
 
-    {hosts, count} =
-      {HostModule.get_hosts(group_uuid, offset, limit), HostModule.count_hosts(group_uuid)}
+    hosts = HostModule.get_hosts(group_uuid, offset, limit)
+    count = HostModule.count_hosts(group_uuid)
 
     render(conn, "list.json", %{
       hosts: hosts,
@@ -108,6 +111,46 @@ defmodule ScutiWeb.HostController do
         totalCount: count
       }
     })
+  end
+
+  @doc """
+  Create Action Endpoint
+  """
+  def create(conn, params) do
+    case validate_create_request(params) do
+      {:ok, _} ->
+        result =
+          HostModule.create_host(%{
+            name: params["name"],
+            hostname: params["hostname"],
+            agent_address: params["agent_address"],
+            labels: params["labels"],
+            host_group_id: HostGroupModule.get_group_id_with_uuid(params["host_group_id"]),
+            secret_key:
+              if params["secret_key"] == "" do
+                AuthService.get_uuid()
+              else
+                params["secret_key"]
+              end
+          })
+
+        case result do
+          {:ok, host} ->
+            conn
+            |> put_status(:created)
+            |> render("index.json", %{host: host})
+
+          {:error, msg} ->
+            conn
+            |> put_status(:bad_request)
+            |> render("error.json", %{message: msg})
+        end
+
+      {:error, reason} ->
+        conn
+        |> put_status(:bad_request)
+        |> render("error.json", %{message: reason})
+    end
   end
 
   @doc """
@@ -124,6 +167,41 @@ defmodule ScutiWeb.HostController do
         conn
         |> put_status(:ok)
         |> render("index.json", %{host: host})
+    end
+  end
+
+  @doc """
+  Update Action Endpoint
+  """
+  def update(conn, params) do
+    case validate_update_request(params, params["host_uuid"]) do
+      {:ok, _} ->
+        result =
+          HostModule.update_host(%{
+            uuid: params["host_uuid"],
+            name: params["name"],
+            hostname: params["hostname"],
+            agent_address: params["agent_address"],
+            labels: params["labels"],
+            secret_key: params["secret_key"]
+          })
+
+        case result do
+          {:ok, host} ->
+            conn
+            |> put_status(:ok)
+            |> render("index.json", %{host: host})
+
+          {:error, msg} ->
+            conn
+            |> put_status(:bad_request)
+            |> render("error.json", %{message: msg})
+        end
+
+      {:error, reason} ->
+        conn
+        |> put_status(:bad_request)
+        |> render("error.json", %{message: reason})
     end
   end
 
@@ -149,97 +227,30 @@ defmodule ScutiWeb.HostController do
     end
   end
 
-  @doc """
-  Create Action Endpoint
-  """
-  def create(conn, params) do
-    case validate_create_request(params) do
-      {:ok, _} ->
-        result =
-          HostGroupModule.create_group(%{
-            name: params["name"],
-            description: params["description"],
-            secret_key: AuthService.get_random_salt(),
-            team_id: TeamModule.get_team_id_with_uuid(params["team_id"]),
-            labels: params["labels"],
-            remote_join: params["remote_join"] == "enabled"
-          })
-
-        case result do
-          {:ok, group} ->
-            conn
-            |> put_status(:created)
-            |> render("index.json", %{group: group})
-
-          {:error, msg} ->
-            conn
-            |> put_status(:bad_request)
-            |> render("error.json", %{message: msg})
-        end
-
-      {:error, reason} ->
-        conn
-        |> put_status(:bad_request)
-        |> render("error.json", %{message: reason})
-    end
-  end
-
-  @doc """
-  Update Action Endpoint
-  """
-  def update(conn, params) do
-    case validate_update_request(params, params["uuid"]) do
-      {:ok, _} ->
-        result =
-          HostGroupModule.update_group(%{
-            uuid: params["uuid"],
-            name: params["name"],
-            description: params["description"],
-            team_id: TeamModule.get_team_id_with_uuid(params["team_id"]),
-            labels: params["labels"],
-            remote_join: params["remote_join"] == "enabled"
-          })
-
-        case result do
-          {:ok, group} ->
-            conn
-            |> put_status(:ok)
-            |> render("index.json", %{group: group})
-
-          {:error, msg} ->
-            conn
-            |> put_status(:bad_request)
-            |> render("error.json", %{message: msg})
-        end
-
-      {:error, reason} ->
-        conn
-        |> put_status(:bad_request)
-        |> render("error.json", %{message: reason})
-    end
-  end
-
   defp validate_create_request(params) do
     errs = %{
-      name_required: "Group name is required",
-      name_invalid: "Group name is invalid",
-      description_required: "Group description is required",
-      description_invalid: "Group description is invalid",
-      labels_required: "Group labels is required",
-      labels_invalid: "Group labels is invalid",
-      remote_join_required: "Group remote join is required",
-      remote_join_invalid: "Group remote join is invalid",
-      team_id_required: "Group team id is required",
-      team_id_invalid: "Group team id is invalid"
+      name_required: "Host name is required",
+      name_invalid: "Host name is invalid",
+      hostname_required: "Host hostname is required",
+      hostname_invalid: "Host hostname is invalid",
+      agent_address_required: "Host agent address is required",
+      agent_address_invalid: "Host agent address is invalid",
+      labels_required: "Host labels are required",
+      labels_invalid: "Host labels are invalid",
+      host_group_id_required: "Host group ID is required",
+      host_group_id_invalid: "Host group ID is invalid",
+      secret_key_required: "Host secret key is required",
+      secret_key_invalid: "Host secret key is invalid"
     }
 
     with {:ok, _} <- ValidatorService.is_string?(params["name"], errs.name_required),
+         {:ok, _} <- ValidatorService.is_string?(params["hostname"], errs.hostname_required),
          {:ok, _} <-
-           ValidatorService.is_string?(params["description"], errs.description_required),
+           ValidatorService.is_string?(params["agent_address"], errs.agent_address_required),
          {:ok, _} <- ValidatorService.is_string?(params["labels"], errs.labels_required),
          {:ok, _} <-
-           ValidatorService.is_string?(params["remote_join"], errs.remote_join_required),
-         {:ok, _} <- ValidatorService.is_string?(params["team_id"], errs.team_id_required),
+           ValidatorService.is_string?(params["host_group_id"], errs.host_group_id_required),
+         {:ok, _} <- ValidatorService.is_string?(params["secret_key"], errs.secret_key_required),
          {:ok, _} <-
            ValidatorService.is_length_between?(
              params["name"],
@@ -249,49 +260,57 @@ defmodule ScutiWeb.HostController do
            ),
          {:ok, _} <-
            ValidatorService.is_length_between?(
-             params["description"],
-             @description_min_length,
-             @description_max_length,
-             errs.description_invalid
+             params["hostname"],
+             @hostname_min_length,
+             @hostname_max_length,
+             errs.hostname_invalid
            ),
-         {:ok, _} <- ValidatorService.is_uuid?(params["team_id"], errs.team_id_invalid),
+         {:ok, _} <-
+           ValidatorService.is_length_between?(
+             params["agent_address"],
+             @agent_address_min_length,
+             @agent_address_max_length,
+             errs.agent_address_invalid
+           ),
+         {:ok, _} <-
+           ValidatorService.is_length_between?(
+             params["secret_key"],
+             @secret_key_min_length,
+             @secret_key_max_length,
+             errs.secret_key_invalid
+           ),
          {:ok, _} <- ValidatorService.is_labels?(params["labels"], errs.labels_invalid),
          {:ok, _} <-
-           ValidatorService.in?(
-             params["remote_join"],
-             ["enabled", "disabled"],
-             errs.remote_join_invalid
-           ) do
+           ValidatorService.is_uuid?(params["host_group_id"], errs.host_group_id_invalid) do
       {:ok, ""}
     else
       {:error, reason} -> {:error, reason}
     end
   end
 
-  defp validate_update_request(params, group_id) do
+  defp validate_update_request(params, host_id) do
     errs = %{
-      name_required: "Group name is required",
-      name_invalid: "Group name is invalid",
-      description_required: "Group description is required",
-      description_invalid: "Group description is invalid",
-      labels_required: "Group labels is required",
-      labels_invalid: "Group labels is invalid",
-      remote_join_required: "Group remote join is required",
-      remote_join_invalid: "Group remote join is invalid",
-      team_id_required: "Group team id is required",
-      team_id_invalid: "Group team id  is invalid",
-      group_id_required: "Group id is required",
-      group_id_invalid: "Group id is invalid"
+      name_required: "Host name is required",
+      name_invalid: "Host name is invalid",
+      hostname_required: "Host hostname is required",
+      hostname_invalid: "Host hostname is invalid",
+      agent_address_required: "Host agent address is required",
+      agent_address_invalid: "Host agent address is invalid",
+      labels_required: "Host labels are required",
+      labels_invalid: "Host labels are invalid",
+      secret_key_required: "Host secret key is required",
+      secret_key_invalid: "Host secret key is invalid",
+      host_id_required: "Host ID is required",
+      host_id_invalid: "Host ID is invalid"
     }
 
     with {:ok, _} <- ValidatorService.is_string?(params["name"], errs.name_required),
+         {:ok, _} <- ValidatorService.is_string?(params["hostname"], errs.hostname_required),
          {:ok, _} <-
-           ValidatorService.is_string?(params["description"], errs.description_required),
+           ValidatorService.is_string?(params["agent_address"], errs.agent_address_required),
          {:ok, _} <- ValidatorService.is_string?(params["labels"], errs.labels_required),
-         {:ok, _} <-
-           ValidatorService.is_string?(params["remote_join"], errs.remote_join_required),
-         {:ok, _} <- ValidatorService.is_string?(params["team_id"], errs.team_id_required),
-         {:ok, _} <- ValidatorService.is_string?(group_id, errs.group_id_required),
+         {:ok, _} <- ValidatorService.is_string?(params["secret_key"], errs.secret_key_required),
+         {:ok, _} <- ValidatorService.is_string?(host_id, errs.host_id_required),
          {:ok, _} <-
            ValidatorService.is_length_between?(
              params["name"],
@@ -301,20 +320,27 @@ defmodule ScutiWeb.HostController do
            ),
          {:ok, _} <-
            ValidatorService.is_length_between?(
-             params["description"],
-             @description_min_length,
-             @description_max_length,
-             errs.description_invalid
+             params["hostname"],
+             @hostname_min_length,
+             @hostname_max_length,
+             errs.hostname_invalid
            ),
-         {:ok, _} <- ValidatorService.is_uuid?(params["team_id"], errs.team_id_invalid),
-         {:ok, _} <- ValidatorService.is_uuid?(group_id, errs.group_id_invalid),
-         {:ok, _} <- ValidatorService.is_labels?(params["labels"], errs.labels_invalid),
          {:ok, _} <-
-           ValidatorService.in?(
-             params["remote_join"],
-             ["enabled", "disabled"],
-             errs.remote_join_invalid
-           ) do
+           ValidatorService.is_length_between?(
+             params["agent_address"],
+             @agent_address_min_length,
+             @agent_address_max_length,
+             errs.agent_address_invalid
+           ),
+         {:ok, _} <-
+           ValidatorService.is_length_between?(
+             params["secret_key"],
+             @secret_key_min_length,
+             @secret_key_max_length,
+             errs.secret_key_invalid
+           ),
+         {:ok, _} <- ValidatorService.is_labels?(params["labels"], errs.labels_invalid),
+         {:ok, _} <- ValidatorService.is_uuid?(host_id, errs.host_id_invalid) do
       {:ok, ""}
     else
       {:error, reason} -> {:error, reason}

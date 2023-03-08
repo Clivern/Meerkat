@@ -10,13 +10,13 @@ defmodule Scuti.Module.AgentModule do
   @doc """
   New agent register request
   """
-  def register_request(data \\ %{}) do
+  def register_request(_data \\ %{}) do
   end
 
   @doc """
   New agent heartbeat request
   """
-  def heartbeat_request(data \\ %{}) do
+  def heartbeat_request(_data \\ %{}) do
   end
 
   defp encode(%{

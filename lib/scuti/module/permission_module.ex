@@ -8,6 +8,7 @@ defmodule Scuti.Module.PermissionModule do
   """
 
   alias Scuti.Context.HostGroupContext
+  alias Scuti.Context.HostContext
   alias Scuti.Module.TeamModule
   alias Scuti.Module.HostGroupModule
 

@@ -121,21 +121,21 @@ defmodule Scuti.Context.HostContext do
   end
 
   @doc """
-  Mark hosts as down if they haven't sent a heartbeat within the specified time frame (in seconds).
+  Mark hosts as offline if they haven't sent a heartbeat within the specified time frame (in seconds).
   """
-  def mark_hosts_down(seconds) do
+  def mark_hosts_as_offline(seconds) do
     older_than_one_minute = DateTime.utc_now() |> DateTime.add(-seconds)
 
     hosts_to_update =
       Repo.all(
         from h in Host,
-          where: h.status != "down",
+          where: h.status != "offline",
           where: h.reported_at < ^older_than_one_minute
       )
 
     Enum.each(hosts_to_update, fn host ->
       host
-      |> Host.changeset(%{status: "down"})
+      |> Host.changeset(%{status: "offline"})
       |> Repo.update()
     end)
 
