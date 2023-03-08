@@ -143,6 +143,32 @@ defmodule Scuti.Context.HostContext do
   end
 
   @doc """
+  Retrieve a host by its ID and team IDs.
+  """
+  def get_host_by_id_groups(id, groups_ids) do
+    from(
+      h in Host,
+      where: h.id == ^id,
+      where: h.host_group_id in ^groups_ids
+    )
+    |> limit(1)
+    |> Repo.one()
+  end
+
+  @doc """
+  Retrieve a host by its UUID and team IDs.
+  """
+  def get_host_by_uuid_groups(uuid, groups_ids) do
+    from(
+      h in Host,
+      where: h.uuid == ^uuid,
+      where: h.host_group_id in ^groups_ids
+    )
+    |> limit(1)
+    |> Repo.one()
+  end
+
+  @doc """
   Retrieve all hosts associated with a specific host group ID.
   """
   def get_hosts_by_host_group(host_group_id, offset, limit) do

@@ -130,6 +130,13 @@ defmodule Scuti.Module.HostGroupModule do
   end
 
   @doc """
+  Get Host Groups by Team List
+  """
+  def get_groups_by_teams(teams_ids) do
+    HostGroupContext.get_groups_by_teams(teams_ids)
+  end
+
+  @doc """
   Get User Teams
   """
   def get_user_teams(user_id) do

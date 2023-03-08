@@ -59,6 +59,16 @@ defmodule Scuti.Context.HostGroupContext do
   end
 
   @doc """
+  Retrieves a group's ID using its UUID.
+  """
+  def get_group_id_with_uuid(uuid) do
+    case get_group_by_uuid(uuid) do
+      nil -> nil
+      group -> group.id
+    end
+  end
+
+  @doc """
   Validate if a host group ID exists in the database.
   """
   def validate_group_id(id) do
@@ -153,6 +163,17 @@ defmodule Scuti.Context.HostGroupContext do
       where: h.team_id in ^teams_ids,
       limit: ^limit,
       offset: ^offset
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Retrieve host groups associated with specific team IDs
+  """
+  def get_groups_by_teams(teams_ids) do
+    from(h in HostGroup,
+      order_by: [desc: h.inserted_at],
+      where: h.team_id in ^teams_ids
     )
     |> Repo.all()
   end
