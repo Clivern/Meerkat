@@ -43,6 +43,7 @@ defmodule ScutiWeb.HostGroupView do
         name: team.name
       },
       labels: group.labels,
+      secretKey: group.secret_key,
       remoteJoin: group.remote_join,
       hostsCount: HostContext.count_hosts_by_host_group(group.id),
       createdAt: group.inserted_at,
