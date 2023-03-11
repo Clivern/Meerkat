@@ -65,6 +65,31 @@ defmodule ScutiWeb.DeploymentController do
   end
 
   @doc """
+  List Action Endpoint
+  """
+  def list(conn, params) do
+    limit = params["limit"] || @default_list_limit
+    offset = params["offset"] || @default_list_offset
+
+    {deployments, count} =
+      if conn.assigns[:is_super] do
+        {DeploymentModule.get_deployments(offset, limit), DeploymentModule.count_deployments()}
+      else
+        {DeploymentModule.get_user_deployments(conn.assigns[:user_id], offset, limit),
+         DeploymentModule.count_user_deployments(conn.assigns[:user_id])}
+      end
+
+    render(conn, "list.json", %{
+      deployments: deployments,
+      metadata: %{
+        limit: limit,
+        offset: offset,
+        totalCount: count
+      }
+    })
+  end
+
+  @doc """
   Create Action Endpoint
   """
   def create(conn, params) do
@@ -110,6 +135,23 @@ defmodule ScutiWeb.DeploymentController do
   end
 
   @doc """
+  Index Action Endpoint
+  """
+  def index(conn, %{"uuid" => uuid}) do
+    case DeploymentModule.get_deployment_by_uuid(uuid) do
+      {:not_found, msg} ->
+        conn
+        |> put_status(:not_found)
+        |> render("error.json", %{message: msg})
+
+      {:ok, deployment} ->
+        conn
+        |> put_status(:ok)
+        |> render("index.json", %{deployment: deployment})
+    end
+  end
+
+  @doc """
   Update Action Endpoint
   """
   def update(conn, params) do
@@ -149,48 +191,6 @@ defmodule ScutiWeb.DeploymentController do
         conn
         |> put_status(:bad_request)
         |> render("error.json", %{message: reason})
-    end
-  end
-
-  @doc """
-  List Action Endpoint
-  """
-  def list(conn, params) do
-    limit = params["limit"] || @default_list_limit
-    offset = params["offset"] || @default_list_offset
-
-    {deployments, count} =
-      if conn.assigns[:is_super] do
-        {DeploymentModule.get_deployments(offset, limit), DeploymentModule.count_deployments()}
-      else
-        {DeploymentModule.get_user_deployments(conn.assigns[:user_id], offset, limit),
-         DeploymentModule.count_user_deployments(conn.assigns[:user_id])}
-      end
-
-    render(conn, "list.json", %{
-      deployments: deployments,
-      metadata: %{
-        limit: limit,
-        offset: offset,
-        totalCount: count
-      }
-    })
-  end
-
-  @doc """
-  Index Action Endpoint
-  """
-  def index(conn, %{"uuid" => uuid}) do
-    case DeploymentModule.get_deployment_by_uuid(uuid) do
-      {:not_found, msg} ->
-        conn
-        |> put_status(:not_found)
-        |> render("error.json", %{message: msg})
-
-      {:ok, deployment} ->
-        conn
-        |> put_status(:ok)
-        |> render("index.json", %{deployment: deployment})
     end
   end
 
