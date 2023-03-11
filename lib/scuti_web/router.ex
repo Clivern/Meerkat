@@ -64,9 +64,9 @@ defmodule ScutiWeb.Router do
     post "/action/v1/install", MiscController, :install
     post "/action/v1/auth", MiscController, :auth
 
-    # post "/action/v1/agent/join/:group_uuid/:host_uuid", AgentController, :join
-    # post "/action/v1/agent/heartbeat/:group_uuid/:host_uuid", AgentController, :heartbeat
-    # post "/action/v1/agent/report/:group_uuid/:host_uuid/:task_uuid", AgentController, :report
+    post "/action/v1/agent/join/:group_uuid/:host_uuid", AgentController, :join
+    post "/action/v1/agent/heartbeat/:group_uuid/:host_uuid", AgentController, :heartbeat
+    post "/action/v1/agent/report/:group_uuid/:host_uuid/:task_uuid", AgentController, :report
   end
 
   scope "/api/v1", ScutiWeb do
@@ -101,11 +101,11 @@ defmodule ScutiWeb.Router do
     delete "/group/:group_uuid/host/:host_uuid", HostController, :delete
 
     # Deployment CRUD
-    # get "/deployment", DeploymentController, :list
-    # post "/deployment", DeploymentController, :create
-    # get "/deployment/:uuid", DeploymentController, :index
-    # put "/deployment/:uuid", DeploymentController, :update
-    # delete "/deployment/:uuid", DeploymentController, :delete
+    get "/deployment", DeploymentController, :list
+    post "/deployment", DeploymentController, :create
+    get "/deployment/:uuid", DeploymentController, :index
+    put "/deployment/:uuid", DeploymentController, :update
+    delete "/deployment/:uuid", DeploymentController, :delete
 
     # Task CRUD
     get "/task/:uuid", TaskController, :index

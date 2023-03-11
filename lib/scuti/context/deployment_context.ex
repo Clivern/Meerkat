@@ -94,6 +94,32 @@ defmodule Scuti.Context.DeploymentContext do
   end
 
   @doc """
+  Retrieve a deployment by its ID and team IDs.
+  """
+  def get_deployment_by_id_teams(id, teams_ids) do
+    from(
+      d in Deployment,
+      where: d.id == ^id,
+      where: d.team_id in ^teams_ids
+    )
+    |> limit(1)
+    |> Repo.one()
+  end
+
+  @doc """
+  Retrieve a deployment by its UUID and team IDs.
+  """
+  def get_deployment_by_uuid_teams(uuid, teams_ids) do
+    from(
+      d in Deployment,
+      where: d.uuid == ^uuid,
+      where: d.team_id in ^teams_ids
+    )
+    |> limit(1)
+    |> Repo.one()
+  end
+
+  @doc """
   Get target hosts for a specific deployment by its ID.
   """
   def get_deployment_target_hosts(id) do
@@ -245,6 +271,16 @@ defmodule Scuti.Context.DeploymentContext do
       where: d.schedule_time < ^DateTime.utc_now()
     )
     |> Repo.all()
+  end
+
+  @doc """
+  Count total number of deployments in the database.
+  """
+  def count_deployments() do
+    from(d in Deployment,
+      select: count(d.id)
+    )
+    |> Repo.one()
   end
 
   @doc """

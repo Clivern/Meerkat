@@ -88,8 +88,7 @@ defmodule Scuti.Module.HostGroupModule do
   Get user host groups
   """
   def get_user_groups(user_id, offset, limit) do
-    get_user_teams(user_id)
-    |> HostGroupContext.get_groups_by_teams(offset, limit)
+    HostGroupContext.get_groups_by_teams(get_user_teams(user_id), offset, limit)
   end
 
   @doc """

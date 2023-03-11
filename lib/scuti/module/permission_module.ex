@@ -36,6 +36,30 @@ defmodule Scuti.Module.PermissionModule do
     !!HostGroupContext.get_group_by_uuid_teams(uuid, get_user_teams_ids(user_id))
   end
 
+  def can_access_deployment_id(:deployment, :anonymous, _id, _user_id) do
+    false
+  end
+
+  def can_access_deployment_id(:deployment, :super, _id, _user_id) do
+    true
+  end
+
+  def can_access_deployment_id(:deployment, :regular, id, user_id) do
+    !!DeploymentContext.get_deployment_by_id_teams(id, get_user_teams_ids(user_id))
+  end
+
+  def can_access_deployment_uuid(:deployment, :anonymous, _uuid, _user_id) do
+    false
+  end
+
+  def can_access_deployment_uuid(:deployment, :super, _uuid, _user_id) do
+    true
+  end
+
+  def can_access_deployment_uuid(:deployment, :regular, uuid, user_id) do
+    !!DeploymentContext.get_deployment_by_uuid_teams(uuid, get_user_teams_ids(user_id))
+  end
+
   def can_access_host_id(:host, :anonymous, _id, _user_id) do
     false
   end
