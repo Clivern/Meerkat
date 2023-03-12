@@ -236,67 +236,112 @@
         </div>
 
         <div class="hp-main-layout-content">
-
             <div class="row g-32">
                 <div class="col-12">
-                    <h1 class="mb-8"><%= gettext "Host Group" %></h1>
-                </div>
-
-                <div class="col-12">
-                    <div class="card hp-card-2">
-                        <div class="card-body">
-                            <h5 class="mb-4">Group Name</h5>
-                            <p class="hp-p1-body mb-16"></p>
-
-                            <h5 class="mb-4">Group UUID</h5>
-                            <p class="hp-p1-body mb-16"></p>
-
-                            <h5 class="mb-4">Group Secret</h5>
-                            <p class="hp-p1-body mb-16"></p>
+                    <div class="row justify-content-between gy-32">
+                        <div class="col hp-flex-none w-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item">
+                                        <a href={Routes.page_path(@conn, :dashboard)}><%= gettext "Dashboard" %></a>
+                                    </li>
+                                    <li class="breadcrumb-item">
+                                        <a href={Routes.page_path(@conn, :groups)}><%= gettext "Host Groups" %></a>
+                                    </li>
+                                    <li class="breadcrumb-item active">**</li>
+                                </ol>
+                            </nav>
                         </div>
-                    </div>
-                </div>
 
-                <div class="col-12">
-                    <div class="card hp-card-6 hp-order-table-card">
-                        <div class="card-body">
-                            <h5 class="mb-8"><%= gettext "Hosts" %></h5>
-
-                            <div class="table-responsive">
-                                <table class="table align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Name" %></span>
-                                            </th>
-                                            <th>
-                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Hostname" %></span>
-                                            </th>
-                                            <th>
-                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Status" %></span>
-                                            </th>
-                                            <th>
-                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Labels" %></span>
-                                            </th>
-                                            <th>
-                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Created at" %></span>
-                                            </th>
-                                            <th>
-                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Actions" %></span>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-
-                                    </tbody>
-                                </table>
+                        <div class="col-12 col-md-7">
+                            <div class="row g-16 align-items-center justify-content-end">
+                                <div class="col hp-flex-none w-auto">
+                                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#group_info_modal">
+                                        <i class="ri-eye-2-fill remix-icon"></i>
+                                        <span><%= gettext "Group Info" %></span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-            </div>
+                <div class="modal fade" id="group_info_modal" tabindex="-1" aria-labelledby="showGroupInfoLabel" aria-hidden="true" data-action={Routes.host_group_path(@conn, :index, @data.group_id)}>
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header py-16 px-24">
+                                <h5 class="modal-title" id="showGroupInfoLabel"><%= gettext "Host Group Info" %></h5>
+                                <button type="button" class="btn-close hp-bg-none d-flex align-items-center justify-content-center" data-bs-dismiss="modal" aria-label="Close">
+                                    <i class="ri-close-line hp-text-color-dark-0 lh-1" style="font-size: 24px;"></i>
+                                </button>
+                            </div>
 
+                            <div class="divider m-0"></div>
+
+                            <div class="modal-body">
+                                <div class="row gx-8">
+                                    <div class="col-12">
+                                        <div class="mb-24" id="group_info_modal_content">
+                                            <p><%= gettext "Host ID:" %> ${group.id}</p>
+                                            <p><%= gettext "Host Secret:" %> ${group.secretKey}</p>
+                                            <div class="divider"></div>
+                                            <pre>
+agent:
+#...
+  # Remote management server configs
+  management:
+    # Remote server endpoint
+    # From vagrant, you can reach management on http://10.0.2.2:4000
+    address: ${SCUTI_AGENT_MANAGEMENT_ADDRESS:-http://localhost:4000}
+    # Host Group UUID
+    host_group_uuid: ${SCUTI_AGENT_HG_UUID:-TBA}
+    # Host UUID
+    host_uuid: ${SCUTI_AGENT_H_UUID:-TBA}
+    # Host Group Secret
+    host_group_secret: ${SCUTI_AGENT_HG_SECRET:-TBA}
+    # Host Secret
+    host_secret: ${SCUTI_AGENT_H_SECRET:-TBA}
+#....
+                                            </pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12" data-group-id={@data.group_id} id="hosts_list" data-action={Routes.host_path(@conn, :list, @data.group_id)}>
+                    <div class="card hp-card-6 hp-order-table-card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: center">
+                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Name" %></span>
+                                            </th>
+                                            <th style="text-align: center">
+                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Hostname" %></span>
+                                            </th>
+                                            <th style="text-align: center">
+                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Status" %></span>
+                                            </th>
+                                            <th style="text-align: center">
+                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Created at" %></span>
+                                            </th>
+                                            <th style="text-align: center">
+                                                <span class="hp-badge-size fw-normal text-black-60 hp-text-color-dark-50 text-uppercase"><%= gettext "Actions" %></span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <footer class="w-100 py-18 px-16 py-sm-24 px-sm-32 hp-bg-color-black-20 hp-bg-color-dark-90">

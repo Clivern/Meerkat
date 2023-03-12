@@ -8,6 +8,7 @@ defmodule Scuti.Module.DeploymentModule do
   """
 
   alias Scuti.Context.DeploymentContext
+  alias Scuti.Context.UserContext
 
   @doc """
   Create a deployment
@@ -191,9 +192,6 @@ defmodule Scuti.Module.DeploymentModule do
     end
   end
 
-  @doc """
-  Get User Teams
-  """
   defp get_user_teams(user_id) do
     teams = UserContext.get_user_teams(user_id)
 

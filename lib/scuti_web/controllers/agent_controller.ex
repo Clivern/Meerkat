@@ -6,16 +6,20 @@ defmodule ScutiWeb.AgentController do
   @moduledoc """
   Agent Controller
   """
+  use ScutiWeb, :controller
+
+  require Logger
+
   @doc """
   Join Action Endpoint
   """
-  def join(conn, _params) do
+  def join(_conn, _params) do
   end
 
   @doc """
   Heartbeat Action Endpoint
   """
-  def heartbeat(conn, _params) do
+  def heartbeat(_conn, _params) do
   end
 
   @doc """
@@ -26,6 +30,6 @@ defmodule ScutiWeb.AgentController do
     record: ....
   }), agent_secret)
   """
-  def report(conn, _params) do
+  def report(_conn, _params) do
   end
 end

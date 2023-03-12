@@ -11,6 +11,7 @@ defmodule Scuti.Module.PermissionModule do
   alias Scuti.Context.HostContext
   alias Scuti.Module.TeamModule
   alias Scuti.Module.HostGroupModule
+  alias Scuti.Context.DeploymentContext
 
   def can_access_group_id(:group, :anonymous, _id, _user_id) do
     false
