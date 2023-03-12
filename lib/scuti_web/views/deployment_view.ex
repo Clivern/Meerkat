@@ -5,20 +5,42 @@
 defmodule ScutiWeb.DeploymentView do
   use ScutiWeb, :view
 
+  alias Scuti.Module.TeamModule
+
+  # Render deployments list
+  def render("list.json", %{deployments: deployments, metadata: metadata}) do
+    %{
+      deployments: Enum.map(deployments, &render_group/1),
+      _metadata: %{
+        limit: metadata.limit,
+        offset: metadata.offset,
+        totalCount: metadata.totalCount
+      }
+    }
+  end
+
+  # Render deployment
+  def render("index.json", %{deployment: deployment}) do
+    render_group(deployment)
+  end
+
+  # Render errors
   def render("error.json", %{message: message}) do
     %{errorMessage: message}
   end
 
-  def render("success.json", %{message: message}) do
-    %{successMessage: message}
-  end
+  # Format deployment
+  defp render_group(deployment) do
+    {_, team} = TeamModule.get_team_by_id(deployment.team_id)
 
-  def render("create.json", %{deployment: deployment}) do
     %{
-      id: deployment.id,
-      uuid: deployment.uuid,
-      teamId: deployment.team_id,
+      id: deployment.uuid,
       name: deployment.name,
+      description: deployment.description,
+      team: %{
+        id: team.uuid,
+        name: team.name
+      },
       hosts_filter: deployment.hosts_filter,
       host_groups_filter: deployment.host_groups_filter,
       patch_type: deployment.patch_type,
