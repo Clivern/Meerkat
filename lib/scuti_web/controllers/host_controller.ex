@@ -125,7 +125,7 @@ defmodule ScutiWeb.HostController do
             hostname: params["hostname"],
             agent_address: params["agent_address"],
             labels: params["labels"],
-            host_group_id: HostGroupModule.get_group_id_with_uuid(params["host_group_id"]),
+            host_group_id: HostGroupModule.get_group_id_with_uuid(params["group_uuid"]),
             secret_key:
               if params["secret_key"] == "" do
                 AuthService.get_uuid()

@@ -1,3 +1,12 @@
+<script type="text/javascript">
+  var _globals = {
+    new_host: '<%= gettext "Host created successfully!" %>',
+    delete_host_message: '<%= gettext "Host deleted successfully!" %>',
+    delete_host_alert: '<%= gettext "You are trying to delete a host! are you sure?" %>',
+    delete_host_endpoint: '<%= Routes.host_path(@conn, :delete, @data.group_id, "UUID") %>'
+  }
+</script>
+
 <main class="hp-bg-color-dark-90 d-flex min-vh-100">
     <div class="hp-main-layout hp-main-layout-horizontal">
         <header>
@@ -256,55 +265,10 @@
                         <div class="col-12 col-md-7">
                             <div class="row g-16 align-items-center justify-content-end">
                                 <div class="col hp-flex-none w-auto">
-                                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#group_info_modal">
-                                        <i class="ri-eye-2-fill remix-icon"></i>
-                                        <span><%= gettext "Group Info" %></span>
+                                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#add_host_modal">
+                                        <i class="ri-user-add-line remix-icon"></i>
+                                        <span><%= gettext "Add New Host" %></span>
                                     </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal fade" id="group_info_modal" tabindex="-1" aria-labelledby="showGroupInfoLabel" aria-hidden="true" data-action={Routes.host_group_path(@conn, :index, @data.group_id)}>
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header py-16 px-24">
-                                <h5 class="modal-title" id="showGroupInfoLabel"><%= gettext "Host Group Info" %></h5>
-                                <button type="button" class="btn-close hp-bg-none d-flex align-items-center justify-content-center" data-bs-dismiss="modal" aria-label="Close">
-                                    <i class="ri-close-line hp-text-color-dark-0 lh-1" style="font-size: 24px;"></i>
-                                </button>
-                            </div>
-
-                            <div class="divider m-0"></div>
-
-                            <div class="modal-body">
-                                <div class="row gx-8">
-                                    <div class="col-12">
-                                        <div class="mb-24" id="group_info_modal_content">
-                                            <p><%= gettext "Host ID:" %> ${group.id}</p>
-                                            <p><%= gettext "Host Secret:" %> ${group.secretKey}</p>
-                                            <div class="divider"></div>
-                                            <pre>
-agent:
-#...
-  # Remote management server configs
-  management:
-    # Remote server endpoint
-    # From vagrant, you can reach management on http://10.0.2.2:4000
-    address: ${SCUTI_AGENT_MANAGEMENT_ADDRESS:-http://localhost:4000}
-    # Host Group UUID
-    host_group_uuid: ${SCUTI_AGENT_HG_UUID:-TBA}
-    # Host UUID
-    host_uuid: ${SCUTI_AGENT_H_UUID:-TBA}
-    # Host Group Secret
-    host_group_secret: ${SCUTI_AGENT_HG_SECRET:-TBA}
-    # Host Secret
-    host_secret: ${SCUTI_AGENT_H_SECRET:-TBA}
-#....
-                                            </pre>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -335,9 +299,160 @@ agent:
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody></tbody>
+                                    <tbody>
+                                      <tr v-for="host in hosts">
+                                        <td style="text-align: center">${host.name}</td>
+                                        <td style="text-align: center">${host.hostname}</td>
+                                        <td style="text-align: center">${host.status}</td>
+                                        <td style="text-align: center">${formatDatetime(host.createdAt)}</td>
+                                        <td>
+                                            <button @click="showHostInfoAction(host)" class="btn btn-dashed btn-sm text-black-100 border-black-100 hp-hover-text-color-black-80 hp-hover-border-color-black-80" data-bs-toggle="modal" data-bs-target="#show_host_info_modal">
+                                                <%= gettext "Info" %>
+                                            </button>
+                                            <button @click="deleteHostAction(host.group.id, host.id)" class="btn btn-dashed btn-sm text-danger border-danger hp-hover-text-color-danger-2 hp-hover-border-color-danger-2">
+                                                <%= gettext "Delete" %>
+                                            </button>
+                                        </td>
+                                      </tr>
+                                      <tr v-if="hosts.length == 0">
+                                        <td colspan="5" style="text-align: center;"><br/><br/><%= gettext "No Records Found!" %></td>
+                                      </tr>
+                                    </tbody>
                                 </table>
                             </div>
+                            <nav>
+                                <ul class="pagination justify-content-end px-32">
+                                    <li class="page-item">
+                                        <button class="page-link" @click="loadPreviousPageAction" v-if="currentPage > 1">
+                                            <svg viewBox="64 64 896 896" focusable="false" data-icon="left" width="12px" height="12px" fill="currentColor" aria-hidden="true">
+                                                <path d="M724 218.3V141c0-6.7-7.7-10.4-12.9-6.3L260.3 486.8a31.86 31.86 0 000 50.3l450.8 352.1c5.3 4.1 12.9.4 12.9-6.3v-77.3c0-4.9-2.3-9.6-6.1-12.6l-360-281 360-281.1c3.8-3 6.1-7.7 6.1-12.6z"></path>
+                                            </svg>
+                                        </button>
+                                    </li>
+
+                                    <li class="page-item">
+                                        <button class="page-link">${currentPage}</button>
+                                    </li>
+
+                                    <li class="page-item">
+                                        <button class="page-link" @click="loadNextPageAction" v-if="currentPage != totalPages">
+                                            <svg viewBox="64 64 896 896" focusable="false" data-icon="right" width="12px" height="12px" fill="currentColor" aria-hidden="true">
+                                                <path d="M765.7 486.8L314.9 134.7A7.97 7.97 0 00302 141v77.3c0 4.9 2.3 9.6 6.1 12.6l360 281.1-360 281.1c-3.9 3-6.1 7.7-6.1 12.6V883c0 6.7 7.7 10.4 12.9 6.3l450.8-352.1a31.96 31.96 0 000-50.4z"></path>
+                                            </svg>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="show_host_info_modal" tabindex="-1" aria-labelledby="showHostInfoLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header py-16 px-24">
+                            <h5 class="modal-title" id="showTeamInfoLabel"><%= gettext "Team Info" %></h5>
+                            <button type="button" class="btn-close hp-bg-none d-flex align-items-center justify-content-center" data-bs-dismiss="modal" aria-label="Close">
+                                <i class="ri-close-line hp-text-color-dark-0 lh-1" style="font-size: 24px;"></i>
+                            </button>
+                        </div>
+                        <div class="divider m-0"></div>
+                        <div class="modal-body">
+                            <div class="row gx-8">
+                                <div class="col-12">
+                                    <div class="mb-24" id="team_info_modal_content"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="add_host_modal" tabindex="-1" aria-labelledby="addNewHostLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header py-16 px-24">
+                            <h5 class="modal-title" id="addNewHostLabel"><%= gettext "Add New Host" %></h5>
+                            <button type="button" class="btn-close hp-bg-none d-flex align-items-center justify-content-center" data-bs-dismiss="modal" aria-label="Close">
+                                <i class="ri-close-line hp-text-color-dark-0 lh-1" style="font-size: 24px;"></i>
+                            </button>
+                        </div>
+                        <div class="divider m-0"></div>
+                        <ul class="nav nav-tabs mb-12" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link active" id="mentry-tab" data-bs-toggle="tab" data-bs-target="#mentry" type="button" role="tab" aria-controls="mentry" aria-selected="true">
+                                    <%= gettext "Manual Entry" %>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" id="rjoin-tab" data-bs-toggle="tab" data-bs-target="#rjoin" type="button" role="tab" aria-controls="rjoin" aria-selected="false">
+                                    <%= gettext "Remote Join" %>
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
+                          <div class="tab-pane fade show active" id="mentry" role="tabpanel" aria-labelledby="mentry-tab">
+                                <form action={Routes.host_path(@conn, :create, @data.group_id)} method="post" v-on:submit.prevent="addHostAction">
+                                    <div class="modal-body">
+                                        <div class="row gx-8">
+                                            <div class="col-12">
+                                                <div class="mb-24">
+                                                    <label class="form-label"><%= gettext "Name" %></label>
+                                                    <input type="text" class="form-control" name="name" required="required"  minlength="2" maxlength="60">
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="mb-24">
+                                                    <label class="form-label"><%= gettext "Hostname" %></label>
+                                                    <input type="text" class="form-control" name="hostname" required="required"  minlength="2" maxlength="60">
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="mb-24">
+                                                    <label class="form-label"><%= gettext "Agent Address" %></label>
+                                                    <input type="text" class="form-control" name="agent_address" required="required"  minlength="2" maxlength="60">
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="mb-24">
+                                                    <label class="form-label"><%= gettext "Labels" %></label>
+                                                    <textarea name="labels" class="form-control" required="required"  minlength="2" maxlength="250"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="mb-24">
+                                                    <label class="form-label"><%= gettext "Secret Key" %></label>
+                                                    <input type="text" class="form-control" name="secret_key" required="required"  minlength="2" maxlength="60">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer pt-0 px-24 pb-24">
+                                        <div class="divider"></div>
+                                        <button type="submit" class="m-0 btn btn-primary w-100" :disabled="isInProgress"><%= gettext "Submit" %></button>
+                                    </div>
+                                </form>
+                          </div>
+                          <div class="tab-pane fade" id="rjoin" role="tabpanel" aria-labelledby="rjoin-tab">
+                            <p class="hp-p1-body mb-0">
+<pre>agent:
+#...
+  # Remote management server configs
+  management:
+    # Management server address
+    address: ${SCUTI_AGENT_MANAGEMENT_ADDRESS:-http://localhost:4000}
+    # Host Group UUID
+    host_group_uuid: ${SCUTI_AGENT_HG_UUID:-TBA}
+    # Host UUID
+    host_uuid: ${SCUTI_AGENT_H_UUID:-TBA}
+    # Host Group Secret
+    host_group_secret: ${SCUTI_AGENT_HG_SECRET:-TBA}
+    # Host Secret
+    host_secret: ${SCUTI_AGENT_H_SECRET:-TBA}
+#....</pre>
+                            </p>
+                          </div>
                         </div>
                     </div>
                 </div>

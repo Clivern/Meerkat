@@ -949,6 +949,142 @@ scuti_app.add_group_modal = (Vue, axios, $) => {
 
 }
 
+// Hosts list
+scuti_app.hosts_list = (Vue, axios, $) => {
+
+    return new Vue({
+        delimiters: ['${', '}'],
+        el: '#hosts_list',
+        data() {
+            return {
+                currentPage: 1,
+                limit: 10,
+                totalCount: 5,
+                hosts: []
+            }
+        },
+        mounted() {
+            this.loadDataAction();
+        },
+        computed: {
+            totalPages() {
+                return Math.ceil(this.totalCount / this.limit);
+            }
+        },
+        methods: {
+            showGroupInfoAction(host) {
+                $("div#show_host_info_modal").text(host.name);
+            },
+
+            formatDatetime(datatime) {
+                return format_datetime(datatime);
+            },
+
+            deleteGroupAction(id) {
+                if (confirm(_globals.delete_host_alert) != true) {
+                    return;
+                }
+
+                axios.delete(_globals.delete_host_endpoint.replace("UUID", id), {})
+                    .then((response) => {
+                        if (response.status >= 200) {
+                            show_notification(_globals.delete_host_message);
+                            setTimeout(() => { location.reload(); }, 2000);
+                        }
+                    })
+                    .catch((error) => {
+                        show_notification(error.response.data.errorMessage);
+                    });
+            },
+
+            loadDataAction() {
+                var offset = (this.currentPage - 1) * this.limit;
+
+                axios.get($("#hosts_list").attr("data-action"), {
+                        params: {
+                            offset: offset,
+                            limit: this.limit
+                        }
+                    })
+                    .then((response) => {
+                        if (response.status >= 200) {
+                            this.hosts = response.data.hosts;
+                            this.limit = response.data._metadata.limit;
+                            this.offset = response.data._metadata.offset;
+                            this.totalCount = response.data._metadata.totalCount;
+                        }
+                    })
+                    .catch((error) => {
+                        show_notification(error.response.data.errorMessage);
+                    });
+            },
+            loadPreviousPageAction(event) {
+                event.preventDefault();
+
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.loadDataAction();
+                }
+            },
+            loadNextPageAction(event) {
+                event.preventDefault();
+
+                if (this.currentPage < this.totalPages) {
+                    this.currentPage++;
+                    this.loadDataAction();
+                }
+            }
+        }
+    });
+}
+
+// Add Host Modal
+scuti_app.add_host_modal = (Vue, axios, $) => {
+
+    return new Vue({
+        delimiters: ['${', '}'],
+        el: '#add_host_modal',
+        data() {
+            return {
+                isInProgress: false
+            }
+        },
+        mounted() {
+        },
+        methods: {
+            addHostAction(event) {
+                event.preventDefault();
+                this.isInProgress = true;
+
+                let inputs = {};
+                let _self = $(event.target);
+                let _form = _self.closest("form");
+
+                _form.serializeArray().map((item, index) => {
+                    inputs[item.name] = item.value;
+                });
+
+                axios.post(_form.attr('action'), inputs)
+                    .then((response) => {
+                        if (response.status >= 200) {
+                            show_notification(_globals.new_host);
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        }
+                    })
+                    .catch((error) => {
+                        this.isInProgress = false;
+                        // Show error
+                        show_notification(error.response.data.errorMessage);
+                    });
+            }
+        }
+    });
+
+}
+
+
 $(document).ready(() => {
     axios.defaults.headers.common = {
         'X-Requested-With': 'XMLHttpRequest',
@@ -1061,6 +1197,23 @@ $(document).ready(() => {
 
     if (document.getElementById("add_group_modal")) {
         scuti_app.add_group_modal(
+            Vue,
+            axios,
+            $
+        );
+    }
+
+
+    if (document.getElementById("hosts_list")) {
+        scuti_app.hosts_list(
+            Vue,
+            axios,
+            $
+        );
+    }
+
+    if (document.getElementById("add_host_modal")) {
+        scuti_app.add_host_modal(
             Vue,
             axios,
             $
